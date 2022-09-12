@@ -5,8 +5,9 @@ using UnityEngine;
 public class CharMovement : MonoBehaviour
 {
     public float maxSpeed;
-    public float acceleration;
+    public float timeToMax;
 
+    private float acceleration;
     private float speed;
     private Camera cam;
     private Vector3 target;
@@ -18,10 +19,15 @@ public class CharMovement : MonoBehaviour
         cam = Camera.main;
         speed = 0;
         rb = GetComponent<Rigidbody>();
+        acceleration = maxSpeed / timeToMax;
     }
 
     // Update is called once per frame
     void Update()
+    {
+    }
+
+    private void FixedUpdate()
     {
         handleRotation();
         moving();
@@ -33,7 +39,7 @@ public class CharMovement : MonoBehaviour
         RaycastHit hit;
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out hit, 500.0f))
+        if (Physics.Raycast(ray, out hit, 500.0f, LayerMask.GetMask("Ground")))
         {
             target = hit.point;
         }
@@ -52,19 +58,13 @@ public class CharMovement : MonoBehaviour
 
         if(hor != 0 || ver != 0)
         {
-            speed = Mathf.Lerp(speed, maxSpeed, Time.deltaTime * acceleration);
-            //if (speed < maxSpeed)
-            //{
-            //    speed = speed + acceleration;
-            //}
+            if (speed < maxSpeed) speed += acceleration * Time.deltaTime;
+
             remainingInput = input;
         } else
         {
-            speed = Mathf.Lerp(speed, 0, Time.deltaTime * acceleration);
-            //if (speed > 0)
-            //{
-            //    speed = speed - acceleration;
-            //}
+            if (speed > 0) speed -= acceleration * Time.deltaTime;
+
             input = remainingInput;
         }
         input = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0) * input;
