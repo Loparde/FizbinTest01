@@ -17,6 +17,8 @@ public class CharMovement : MonoBehaviour
     private Camera cam;
     private Vector3 target;
 
+    private Quack script;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,6 +27,7 @@ public class CharMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         acceleration = maxSpeed / timeToMax;
         inputHandler = InputHandler.Instance;
+        script = GetComponent<Quack>();
     }
 
     // Update is called once per frame
@@ -107,9 +110,6 @@ public class CharMovement : MonoBehaviour
 
     private void quack()
     {
-        if(inputHandler.fire != 0)
-        {
-            GetComponent<AudioSource>().Play();
-        }
+        script.quack();
     }
 }
