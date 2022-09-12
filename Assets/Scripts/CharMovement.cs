@@ -6,6 +6,7 @@ public class CharMovement : MonoBehaviour
 {
     public float maxSpeed;
     public float timeToMax;
+    public bool globalMovement;
 
     private float acceleration;
     private float speed;
@@ -59,15 +60,17 @@ public class CharMovement : MonoBehaviour
         if(hor != 0 || ver != 0)
         {
             if (speed < maxSpeed) speed += acceleration * Time.deltaTime;
-
             remainingInput = input;
         } else
         {
-            if (speed > 0) speed -= acceleration * Time.deltaTime;
-
-            input = remainingInput;
+            if (speed > 0)
+            {
+                speed -= acceleration * Time.deltaTime;
+                input = remainingInput;
+            }
         }
-        input = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0) * input;
+        if (globalMovement) input = Quaternion.Euler(0, 225, 0) * input;
+        else input = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0) * input;
         rb.MovePosition(transform.position + input * speed);
     }
 }
