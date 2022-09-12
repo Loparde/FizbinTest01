@@ -34,6 +34,15 @@ public class CharMovement : MonoBehaviour
         moving();
     }
 
+    // Seems not to work: i wanted to prevent the character from glitching through walls
+    //private void OnCollisionStay(Collision collision)
+    //{
+    //    if(collision.gameObject.layer == 7)
+    //    {
+    //        rb.velocity = transform.forward * -0.5f;
+    //    }
+    //}
+
     private void handleRotation()
     {
         // Get MousePoint on Map
