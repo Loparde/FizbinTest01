@@ -80,6 +80,16 @@ public class CharMovement : MonoBehaviour
         }
         if (globalMovement) input = Quaternion.Euler(0, 225, 0) * input;
         else input = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0) * input;
+        walldetection(input);
         rb.MovePosition(transform.position + input * speed);
+    }
+
+    private void walldetection(Vector3 direction)
+    {
+        RaycastHit hit;
+        if(Physics.Raycast(transform.position, direction, out hit, 0.5f))
+        {
+            if (hit.collider.gameObject.layer == 7) speed = 0.05f; // acceleration * Time.deltaTime;
+        }
     }
 }
