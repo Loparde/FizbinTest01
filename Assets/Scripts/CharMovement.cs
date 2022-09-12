@@ -10,10 +10,13 @@ public class CharMovement : MonoBehaviour
 
     private float acceleration;
     private float speed;
-    private Camera cam;
-    private Vector3 target;
     private Rigidbody rb;
     private Vector3 remainingInput;
+    private InputHandler inputHandler;
+
+    private Camera cam;
+    private Vector3 target;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +24,7 @@ public class CharMovement : MonoBehaviour
         speed = 0;
         rb = GetComponent<Rigidbody>();
         acceleration = maxSpeed / timeToMax;
+        inputHandler = InputHandler.Instance;
     }
 
     // Update is called once per frame
@@ -32,6 +36,7 @@ public class CharMovement : MonoBehaviour
     {
         handleRotation();
         moving();
+        quack();
     }
 
     // Seems not to work: i wanted to prevent the character from glitching through walls
@@ -47,7 +52,7 @@ public class CharMovement : MonoBehaviour
     {
         // Get MousePoint on Map
         RaycastHit hit;
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(inputHandler.mouseposition);
 
         if (Physics.Raycast(ray, out hit, 500.0f, LayerMask.GetMask("Ground")))
         {
@@ -62,34 +67,49 @@ public class CharMovement : MonoBehaviour
     private void moving()
     {
         // Get Player Input
-        float hor = Input.GetAxis("Horizontal");
-        float ver = Input.GetAxis("Vertical");
-        Vector3 input = new Vector3(hor, 0, ver);
+        Vector3 input = new Vector3(inputHandler.horizontal, 0, inputHandler.vertical);
 
-        if(hor != 0 || ver != 0)
+        if(input != Vector3.zero)
         {
+            // Accelerate and save latest Input
             if (speed < maxSpeed) speed += acceleration * Time.deltaTime;
             remainingInput = input;
         } else
         {
+            // Decelerate in the direction of latest saved Input
             if (speed > 0)
             {
                 speed -= acceleration * Time.deltaTime;
                 input = remainingInput;
             }
         }
+
+        // Switching between two kinds of Movements
         if (globalMovement) input = Quaternion.Euler(0, 225, 0) * input;
         else input = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0) * input;
+
+        // Slowing down before colliding with walls
         walldetection(input);
+
+        // Move Player
         rb.MovePosition(transform.position + input * speed);
     }
 
     private void walldetection(Vector3 direction)
     {
+        // Stop Player from going too fast for unity detection
         RaycastHit hit;
         if(Physics.Raycast(transform.position, direction, out hit, 0.5f))
         {
-            if (hit.collider.gameObject.layer == 7) speed = 0.05f; // acceleration * Time.deltaTime;
+            if (hit.collider.gameObject.layer == 7) speed = 0.05f;
+        }
+    }
+
+    private void quack()
+    {
+        if(inputHandler.fire != 0)
+        {
+            GetComponent<AudioSource>().Play();
         }
     }
 }
